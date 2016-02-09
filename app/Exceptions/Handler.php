@@ -44,6 +44,11 @@ class Handler extends ExceptionHandler
     {
         if ($e instanceof ModelNotFoundException) {
             $e = new NotFoundHttpException($e->getMessage(), $e);
+        } else if (
+            $e instanceof InvalidCredentialsException ||
+            $e instanceof NoAuthenticationException
+        ) {
+            return $e->render();
         }
 
         return parent::render($request, $e);
