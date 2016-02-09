@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug'           => env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'url' => 'http://localhost',
+    'url'             => 'http://localhost',
 
     /*
     |--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone'        => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale'          => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -78,9 +78,9 @@ return [
     |
     */
 
-    'key' => env('APP_KEY', 'SomeRandomString'),
+    'key'             => env('APP_KEY', 'SomeRandomString'),
 
-    'cipher' => 'AES-256-CBC',
+    'cipher'          => 'AES-256-CBC',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log'             => env('APP_LOG', 'single'),
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +108,7 @@ return [
     |
     */
 
-    'providers' => [
+    'providers'       => [
 
         /*
          * Laravel Framework Service Providers...
@@ -131,7 +131,7 @@ return [
         Illuminate\Pipeline\PipelineServiceProvider::class,
         Illuminate\Queue\QueueServiceProvider::class,
         Illuminate\Redis\RedisServiceProvider::class,
-        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+//        Illuminate\Auth\Passwords\PasswordResetServiceProvider::class, //Replaced with Doctrine
         Illuminate\Session\SessionServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
@@ -145,8 +145,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        LaravelDoctrine\ORM\DoctrineServiceProvider::class
-
+        /*
+         * Doctrine
+         */
+        LaravelDoctrine\ORM\DoctrineServiceProvider::class,
+        LaravelDoctrine\ORM\Auth\Passwords\PasswordResetServiceProvider::class
     ],
 
     /*
@@ -160,43 +163,47 @@ return [
     |
     */
 
-    'aliases' => [
+    'aliases'         => [
 
-        'App'       => Illuminate\Support\Facades\App::class,
-        'Artisan'   => Illuminate\Support\Facades\Artisan::class,
-        'Auth'      => Illuminate\Support\Facades\Auth::class,
-        'Blade'     => Illuminate\Support\Facades\Blade::class,
-        'Bus'       => Illuminate\Support\Facades\Bus::class,
-        'Cache'     => Illuminate\Support\Facades\Cache::class,
-        'Config'    => Illuminate\Support\Facades\Config::class,
-        'Cookie'    => Illuminate\Support\Facades\Cookie::class,
-        'Crypt'     => Illuminate\Support\Facades\Crypt::class,
-        'DB'        => Illuminate\Support\Facades\DB::class,
-        'Eloquent'  => Illuminate\Database\Eloquent\Model::class,
-        'Event'     => Illuminate\Support\Facades\Event::class,
-        'File'      => Illuminate\Support\Facades\File::class,
-        'Gate'      => Illuminate\Support\Facades\Gate::class,
-        'Hash'      => Illuminate\Support\Facades\Hash::class,
-        'Input'     => Illuminate\Support\Facades\Input::class,
-        'Lang'      => Illuminate\Support\Facades\Lang::class,
-        'Log'       => Illuminate\Support\Facades\Log::class,
-        'Mail'      => Illuminate\Support\Facades\Mail::class,
-        'Password'  => Illuminate\Support\Facades\Password::class,
-        'Queue'     => Illuminate\Support\Facades\Queue::class,
-        'Redirect'  => Illuminate\Support\Facades\Redirect::class,
-        'Redis'     => Illuminate\Support\Facades\Redis::class,
-        'Request'   => Illuminate\Support\Facades\Request::class,
-        'Response'  => Illuminate\Support\Facades\Response::class,
-        'Route'     => Illuminate\Support\Facades\Route::class,
-        'Schema'    => Illuminate\Support\Facades\Schema::class,
-        'Session'   => Illuminate\Support\Facades\Session::class,
-        'Storage'   => Illuminate\Support\Facades\Storage::class,
-        'URL'       => Illuminate\Support\Facades\URL::class,
-        'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View'      => Illuminate\Support\Facades\View::class,
+        'App'           => Illuminate\Support\Facades\App::class,
+        'Artisan'       => Illuminate\Support\Facades\Artisan::class,
+        'Auth'          => Illuminate\Support\Facades\Auth::class,
+        'Blade'         => Illuminate\Support\Facades\Blade::class,
+        'Bus'           => Illuminate\Support\Facades\Bus::class,
+        'Cache'         => Illuminate\Support\Facades\Cache::class,
+        'Config'        => Illuminate\Support\Facades\Config::class,
+        'Cookie'        => Illuminate\Support\Facades\Cookie::class,
+        'Crypt'         => Illuminate\Support\Facades\Crypt::class,
+        'DB'            => Illuminate\Support\Facades\DB::class,
+        'Eloquent'      => Illuminate\Database\Eloquent\Model::class,
+        'Event'         => Illuminate\Support\Facades\Event::class,
+        'File'          => Illuminate\Support\Facades\File::class,
+        'Gate'          => Illuminate\Support\Facades\Gate::class,
+        'Hash'          => Illuminate\Support\Facades\Hash::class,
+        'Input'         => Illuminate\Support\Facades\Input::class,
+        'Lang'          => Illuminate\Support\Facades\Lang::class,
+        'Log'           => Illuminate\Support\Facades\Log::class,
+        'Mail'          => Illuminate\Support\Facades\Mail::class,
+        'Password'      => Illuminate\Support\Facades\Password::class,
+        'Queue'         => Illuminate\Support\Facades\Queue::class,
+        'Redirect'      => Illuminate\Support\Facades\Redirect::class,
+        'Redis'         => Illuminate\Support\Facades\Redis::class,
+        'Request'       => Illuminate\Support\Facades\Request::class,
+        'Response'      => Illuminate\Support\Facades\Response::class,
+        'Route'         => Illuminate\Support\Facades\Route::class,
+        'Schema'        => Illuminate\Support\Facades\Schema::class,
+        'Session'       => Illuminate\Support\Facades\Session::class,
+        'Storage'       => Illuminate\Support\Facades\Storage::class,
+        'URL'           => Illuminate\Support\Facades\URL::class,
+        'Validator'     => Illuminate\Support\Facades\Validator::class,
+        'View'          => Illuminate\Support\Facades\View::class,
 
-        'EntityManager' => LaravelDoctrine\ORM\Facades\EntityManager::class
-
+        /*
+         * Doctrine
+         */
+        'EntityManager' => LaravelDoctrine\ORM\Facades\EntityManager::class,
+        'Registry'      => LaravelDoctrine\ORM\Facades\Registry::class,
+        'Doctrine'      => LaravelDoctrine\ORM\Facades\Doctrine::class
     ],
 
 ];
