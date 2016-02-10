@@ -2,20 +2,21 @@
 
 namespace App\Domain\Entities;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Domain\ValueObjects\Name;
-use LaravelDoctrine\ORM\Auth\Authenticatable;
+use App\Infrastructure\Doctrine\DoctrineEntity;
+use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use LaravelDoctrine\Extensions\Timestamps\Timestamps;
+use LaravelDoctrine\ORM\Auth\Authenticatable;
 
 /**
  * @ORM\Entity()
  */
-class User implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class User extends DoctrineEntity implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
 
     use Authenticatable, Timestamps, Authorizable, CanResetPassword;
@@ -41,24 +42,11 @@ class User implements AuthenticatableContract, AuthorizableContract, CanResetPas
      */
     protected $email;
 
-    public function __construct(Name $name)
+    public function setPassword($password)
     {
-        $this->name = $name;
-    }
+        $this->password = \Hash::make($password);
 
-    /**
-     * Create new user object
-     *
-     * @param Name $name
-     * @param string $email
-     * @param string $password
-     */
-    public static function create(Name $name, $email, $password)
-    {
-        $user = new self($name);
-        $user->email = $email;
-
-        $user->setPassword(\Hash::make($password));
+        return $this;
     }
 
     public function __get($property)

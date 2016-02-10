@@ -1,21 +1,36 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Eloquent\Model;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+
     public function run()
     {
-        Model::unguard();
+        $this
+            ->defaultSeeders()
+            ->developmentSeeders();
+    }
 
-        // $this->call(UserTableSeeder::class);
+    /**
+     * Seeders to run in a 'local' environment for development testing
+     */
+    private function developmentSeeders()
+    {
+        if (\App::environment() !== 'local') return $this;
 
-        Model::reguard();
+        \App\Domain\Entities\User::truncate();
+        $this->call('UsersSeeder');
+
+        return $this;
+    }
+
+    /**
+     * Seeders that will run to populate the database with default values
+     */
+    private function defaultSeeders()
+    {
+
+        return $this;
     }
 }
