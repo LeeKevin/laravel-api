@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 
-class BasicAuthenticate
+class VerifyToken
 {
 
     /**
@@ -36,13 +36,9 @@ class BasicAuthenticate
      */
     public function handle($request, Closure $next)
     {
-        if (empty($request->header('Authorization'))) throw new \App\Exceptions\NoAuthenticationException;
-        $isAuthenticated = $this->auth->once([
-            'email'    => $request->getUser(),
-            'password' => $request->getPassword()
-        ]);
-        if (!$isAuthenticated) throw new \App\Exceptions\InvalidCredentialsException;
+        $user = \JWTAuth::parseToken()->authenticate();
 
+        $this->auth->setUser($user);
         return $next($request);
     }
 }

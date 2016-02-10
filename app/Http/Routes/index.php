@@ -1,7 +1,11 @@
 <?php
 
 Route::group(['prefix' => 'api/v1'], function () {
-    Route::post('token', ['uses' => 'UsersController@token', 'middleware' => 'basicauth']);
+    //Retrieve token
+    Route::post('token', ['uses' => 'UsersController@token', 'middleware' => 'auth']);
 
-    Route::resource('users', 'UsersController');
+    //Apply VerifyToken middleware to api
+    Route::group(['middleware' => 'token'], function () {
+        Route::resource('users', 'UsersController', ['except' => ['create', 'edit']]);
+    });
 });

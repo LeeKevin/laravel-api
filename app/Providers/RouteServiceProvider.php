@@ -42,7 +42,7 @@ class RouteServiceProvider extends ServiceProvider
             $files = new \RecursiveDirectoryIterator(app_path('/Http/Routes'));
 
             foreach (new \RecursiveIteratorIterator($files) as $file) {
-                if ($file->isFile()) {
+                if ($file->isFile() && pathinfo($file->getFileName())['extension'] == 'php') {
                     require $file->getPathname();
                 }
             }

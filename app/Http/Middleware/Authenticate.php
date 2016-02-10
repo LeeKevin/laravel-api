@@ -7,18 +7,18 @@ use Illuminate\Contracts\Auth\Guard;
 
 class Authenticate
 {
+
     /**
-     * The Guard implementation.
+     * The guard instance.
      *
-     * @var Guard
+     * @var \Illuminate\Contracts\Auth\Guard
      */
     protected $auth;
 
     /**
      * Create a new middleware instance.
      *
-     * @param  Guard  $auth
-     * @return void
+     * @param  \Illuminate\Contracts\Auth\Guard $auth
      */
     public function __construct(Guard $auth)
     {
@@ -28,19 +28,20 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
+     * @throws \App\Exceptions\InvalidCredentialsException
+     * @throws \App\Exceptions\NoAuthenticationException
      */
     public function handle($request, Closure $next)
     {
-        if ($this->auth->guest()) {
-            if ($request->ajax()) {
-                return response('Unauthorized.', 401);
-            } else {
-                return redirect()->guest('auth/login');
-            }
-        }
+        if (empty($request->header('Authorization'))) throw new \App\Exceptions\NoAuthenticationException;
+        $isAuthenticated = $this->auth->once([
+            'email'    => $request->getUser(),
+            'password' => $request->getPassword()
+        ]);
+        if (!$isAuthenticated) throw new \App\Exceptions\InvalidCredentialsException;
 
         return $next($request);
     }

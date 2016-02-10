@@ -20,14 +20,25 @@ class Name
      */
     protected $lastname;
 
+
+    public function __construct()
+    {
+    }
+
     /**
+     * Create a Name object
+     *
      * @param string $firstname
      * @param string $lastname
+     * @return Name
      */
-    public function __construct($firstname, $lastname)
+    public static function create($firstname, $lastname)
     {
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
+        $name = new self();
+        $name->setFirstname($firstname);
+        $name->setLastname($lastname);
+
+        return $name;
     }
 
     /**

@@ -149,7 +149,14 @@ return [
          * Doctrine
          */
         LaravelDoctrine\ORM\DoctrineServiceProvider::class,
-        LaravelDoctrine\ORM\Auth\Passwords\PasswordResetServiceProvider::class
+        LaravelDoctrine\ORM\Auth\Passwords\PasswordResetServiceProvider::class,
+        LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class,
+        LaravelDoctrine\Extensions\BeberleiExtensionsServiceProvider::class,
+
+        /*
+         * Third Party
+         */
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
     ],
 
     /*
@@ -203,7 +210,13 @@ return [
          */
         'EntityManager' => LaravelDoctrine\ORM\Facades\EntityManager::class,
         'Registry'      => LaravelDoctrine\ORM\Facades\Registry::class,
-        'Doctrine'      => LaravelDoctrine\ORM\Facades\Doctrine::class
+        'Doctrine'      => LaravelDoctrine\ORM\Facades\Doctrine::class,
+
+        /*
+         * Third Party
+         */
+        'JWTAuth'       => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'JWTFactory'    => Tymon\JWTAuth\Facades\JWTFactory::class,
     ],
 
 ];

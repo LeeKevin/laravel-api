@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use LaravelDoctrine\Extensions\Timestamps\Timestamps;
 
 /**
  * @ORM\Entity()
@@ -17,7 +18,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 class User implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
 
-    use Authenticatable, Authorizable, CanResetPassword;
+    use Authenticatable, Timestamps, Authorizable, CanResetPassword;
 
     /**
      * @ORM\Id()
@@ -40,53 +41,30 @@ class User implements AuthenticatableContract, AuthorizableContract, CanResetPas
      */
     protected $email;
 
-    /**
-     * @param Name $name
-     * @param string $email
-     */
-    public function __construct(Name $name, $email)
-    {
-        $this->email = $email;
-        $this->name = $name;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return Name
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param Name $name
-     */
-    public function setName(Name $name)
+    public function __construct(Name $name)
     {
         $this->name = $name;
     }
 
     /**
-     * @return string
+     * Create new user object
+     *
+     * @param Name $name
+     * @param string $email
+     * @param string $password
      */
-    public function getEmail()
+    public static function create(Name $name, $email, $password)
     {
-        return $this->email;
+        $user = new self($name);
+        $user->email = $email;
+
+        $user->setPassword(\Hash::make($password));
     }
 
-    /**
-     * @param string $email
-     */
-    public function setEmail($email)
+    public function __get($property)
     {
-        $this->email = $email;
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
     }
 }
