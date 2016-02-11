@@ -7,6 +7,7 @@ use Tymon\JWTAuth\Providers\User\UserInterface;
 
 class DoctrineUserAdapter implements UserInterface
 {
+
     /**
      * @var \App\Domain\Entities\User
      */
@@ -27,14 +28,12 @@ class DoctrineUserAdapter implements UserInterface
     /**
      * Get the user by the given key, value
      *
-     * @param  mixed  $key
-     * @param  mixed  $value
+     * @param  mixed $key
+     * @param  mixed $value
      * @return \App\Domain\Entities\User
      */
     public function getBy($key, $value)
     {
-        return
-
-            $this->user->where($key, $value)->first();
+        return $this->user->where($key, $value)->first();
     }
 }

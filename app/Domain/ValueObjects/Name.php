@@ -1,12 +1,13 @@
 <?php
 namespace App\Domain\ValueObjects;
 
+use App\Domain\Object;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Embeddable()
  */
-class Name extends ValueObject
+class Name extends Object
 {
 
     /**
@@ -35,5 +36,17 @@ class Name extends ValueObject
         $name->lastname = $lastname;
 
         return $name;
+    }
+
+    /**
+     * Validation rules for the Name object
+     *
+     * @return array
+     */
+    protected function rules() {
+        return [
+            'firstname' => 'required|alpha_dash',
+            'lastname'  => 'required|alpha_dash',
+        ];
     }
 }

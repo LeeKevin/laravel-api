@@ -12,7 +12,15 @@ abstract class Controller extends BaseController
 
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function toJSONResponse($object, $statusCode = 200)
+
+    /**
+     * Build a JSON Response for an array object
+     *
+     * @param array $object
+     * @param int $statusCode
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toJSONResponse(array $object, $statusCode = 200)
     {
         return response()->json($object, $statusCode);
     }

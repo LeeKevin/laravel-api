@@ -11,3 +11,4 @@ This project provides a starting point for building Laravel 5.1 RESTful API appl
 ## Installation, Set-up, & Usage
 
 [Check out the Wiki for documentation.](https://github.com/LeeKevin/laravel-api/wiki)
+

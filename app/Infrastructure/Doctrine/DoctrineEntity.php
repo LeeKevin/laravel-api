@@ -2,40 +2,20 @@
 
 namespace App\Infrastructure\Doctrine;
 
-use App\Domain\ValueObjects\ValueObject;
-use Illuminate\Support\Str;
-
-abstract class DoctrineEntity
+trait DoctrineEntity
 {
 
+    /**
+     * @var string
+     */
     protected static $table;
 
-
-    public static function truncate()
-    {
-        $connection = \EntityManager::getConnection();
-        $platform = $connection->getDatabasePlatform();
-        $connection->executeUpdate($platform->getTruncateTableSQL(self::getTable(), false));
-    }
-
-    public static function getTable()
-    {
-        //if the table is overridden, return that
-        if (isset(self::$table)) return self::$table;
-
-        //else get the pluralized table name from the name of the entity
-        $entityClassPath = strtolower(get_called_class());
-        $entityName = substr(strrchr($entityClassPath, '\\'), 1);
-        switch ($entityName[strlen($entityName) - 1]) {
-            case 'y':
-                return substr($entityName, 0, - 1) . 'ies';
-            case 's':
-                return $entityName . 'es';
-            default:
-                return $entityName . 's';
-        }
-    }
-
+    /**
+     * Create an instance of the the entity
+     *
+     * @param array $attributes
+     * @return mixed
+     */
     public static function create(array $attributes = [])
     {
         $model = new static();
@@ -43,6 +23,12 @@ abstract class DoctrineEntity
         return $model->fill($attributes);
     }
 
+    /**
+     * Fill the entity with attributes
+     *
+     * @param array $attributes
+     * @return $this
+     */
     public function fill(array $attributes = [])
     {
         $attributeList = $this->getAttributes();
@@ -55,7 +41,7 @@ abstract class DoctrineEntity
             }
 
             /**
-             * @var ValueObject $embed
+             * @var Object $embed
              */
             $embed = $this->__get($attributeList[$key]['declaredField']);
             if (!isset($embed)) { //create value object and assign attribute
@@ -70,6 +56,12 @@ abstract class DoctrineEntity
         return $this;
     }
 
+    /**
+     * Retrieve the current attributes from the entity
+     *
+     * @return array
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
     private function getAttributes()
     {
         /**
@@ -103,6 +95,46 @@ abstract class DoctrineEntity
         return $attributes;
     }
 
+    /**
+     * Truncate the table for the current entity.
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public static function truncate()
+    {
+        $connection = \EntityManager::getConnection();
+        $platform = $connection->getDatabasePlatform();
+        $connection->executeUpdate($platform->getTruncateTableSQL(self::getTable(), false));
+    }
+
+    /**
+     * Retrieve the name of the storage table for the current entity.
+     *
+     * @return string
+     */
+    protected static function getTable()
+    {
+        //if the table is overridden, return that
+        if (isset(self::$table)) return self::$table;
+
+        //else get the pluralized table name from the name of the entity
+        $entityClassPath = strtolower(get_called_class());
+        $entityName = substr(strrchr($entityClassPath, '\\'), 1);
+        switch ($entityName[strlen($entityName) - 1]) {
+            case 'y':
+                return substr($entityName, 0, - 1) . 'ies';
+            case 's':
+                return $entityName . 'es';
+            default:
+                return $entityName . 's';
+        }
+    }
+
+    /**
+     * Persist the entity
+     *
+     * @return self
+     */
     public function save()
     {
         $em = app()['em'];
@@ -120,6 +152,9 @@ abstract class DoctrineEntity
         $this->remove();
     }
 
+    /**
+     * Remove the entity from storage
+     */
     public function remove()
     {
         $em = app()['em'];
@@ -127,81 +162,4 @@ abstract class DoctrineEntity
         $em->flush();
     }
 
-    /**
-     * Set a given attribute on the model.
-     *
-     * @param  string $key
-     * @param  mixed $value
-     * @return $this
-     */
-    public function setAttribute($key, $value)
-    {
-        // First we will check for the presence of a mutator for the set operation
-        // which simply lets the developers tweak the attribute as it is set on
-        // the model, such as "json_encoding" an listing of data for storage.
-        if ($this->hasSetMutator($key)) {
-            $method = 'set' . Str::studly($key) . 'Attribute';
-
-            return $this->{$method}($value);
-        }
-
-        $this->$key = $value;
-
-        return $this;
-    }
-
-    /**
-     * Determine if a set mutator exists for an attribute.
-     *
-     * @param  string $key
-     * @return bool
-     */
-    public function hasSetMutator($key)
-    {
-        return method_exists($this, 'set' . Str::studly($key) . 'Attribute');
-    }
-
-    protected abstract function rules();
-
-    /**
-     * @var \Illuminate\Support\MessageBag
-     */
-    private $errors;
-    private $valid;
-
-
-    public function errors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @param $data
-     * @return bool
-     */
-    public function validate($data)
-    {
-        // make a new validator object
-        $v = \Validator::make($data, $this->rules());
-        // return the result
-        if ($v->fails()) {
-            $this->errors = $v->errors();
-
-            return $this->valid = false;
-        }
-
-        return $this->valid = true;
-    }
-
-    public function valid()
-    {
-        return $this->valid;
-    }
-
-    public function __get($property)
-    {
-        if (property_exists($this, $property)) {
-            return $this->$property;
-        }
-    }
 }

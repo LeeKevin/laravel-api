@@ -2,6 +2,7 @@
 
 namespace App\Domain\Entities;
 
+use App\Domain\Object;
 use App\Domain\ValueObjects\Name;
 use App\Infrastructure\Doctrine\DoctrineEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,10 +17,10 @@ use LaravelDoctrine\ORM\Auth\Authenticatable;
 /**
  * @ORM\Entity()
  */
-class User extends DoctrineEntity implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+class User extends Object implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, Entity
 {
 
-    use Authenticatable, Timestamps, Authorizable, CanResetPassword;
+    use Authenticatable, Timestamps, Authorizable, CanResetPassword, DoctrineEntity;
 
     /**
      * @ORM\Id()
@@ -42,6 +43,24 @@ class User extends DoctrineEntity implements AuthenticatableContract, Authorizab
      */
     protected $email;
 
+    /**
+     * Set a hashed password
+     *
+     * @param string $password
+     * @return self
+     */
+    public function setPasswordAttribute($password)
+    {
+        $this->setPassword(\Hash::make($password));
+
+        return $this;
+    }
+
+    /**
+     * Validation rules for the User entity
+     *
+     * @return array
+     */
     protected function rules() {
         return [
             'email'     => 'required|email|unique:' . get_class($this),
@@ -49,12 +68,5 @@ class User extends DoctrineEntity implements AuthenticatableContract, Authorizab
             'firstname' => 'required|alpha_dash',
             'lastname'  => 'required|alpha_dash'
         ];
-    }
-
-    public function setPasswordAttribute($password)
-    {
-        $this->setPassword(\Hash::make($password));
-
-        return $this;
     }
 }

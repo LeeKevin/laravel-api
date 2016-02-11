@@ -17,6 +17,9 @@ class UsersController extends Controller
      */
     protected $userRepository;
 
+    /**
+     * @param Repositories\UserRepository $userRepository
+     */
     public function __construct(Repositories\UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
@@ -170,7 +173,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Generate a new token for an authenticated user
      *
      * @return \Illuminate\Http\Response
      * @throws InvalidCredentialsException
