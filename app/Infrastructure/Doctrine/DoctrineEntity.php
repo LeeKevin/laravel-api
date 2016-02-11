@@ -2,21 +2,14 @@
 
 namespace App\Infrastructure\Doctrine;
 
+use App\Domain\ValueObjects\ValueObject;
 use Illuminate\Support\Str;
 
-class DoctrineEntity
+abstract class DoctrineEntity
 {
 
     protected static $table;
 
-    public function __construct(array $attributes)
-    {
-        foreach ($attributes as $key => $value) {
-            if (!property_exists($this, $key)) continue;
-
-            $this->setAttribute($key, $value);
-        }
-    }
 
     public static function truncate()
     {
@@ -45,9 +38,69 @@ class DoctrineEntity
 
     public static function create(array $attributes = [])
     {
-        $model = new static($attributes);
+        $model = new static();
 
-        return $model;
+        return $model->fill();
+    }
+
+    public function fill(array $attributes = [])
+    {
+        $attributeList = $this->getAttributes();
+        foreach ($attributes as $key => $value) {
+            if (!array_key_exists($key, $attributeList)) continue;
+
+            if (!isset($attributeList[$key]['mappingClass'])) {
+                $this->setAttribute($key, $value);
+                continue;
+            }
+
+            /**
+             * @var ValueObject $embed
+             */
+            $embed = $this->__get($attributeList[$key]['declaredField']);
+            if (!isset($embed)) { //create value object and assign attribute
+                $embedClass = $attributeList[$key]['mappingClass'];
+                $embed = new $embedClass;
+                $this->setAttribute($attributeList[$key]['declaredField'], $embed);
+            }
+            $embed->setAttribute($attributeList[$key]['columnName'], $value);
+        }
+        $this->validate($attributes);
+
+        return $this;
+    }
+
+    private function getAttributes()
+    {
+        /**
+         * @var \EntityManager $em
+         */
+        $em = app()['em'];
+        $attributes = [];
+
+        $metaData = $em->getClassMetadata(get_called_class());
+        foreach ($metaData->getFieldNames() as $fieldName) {
+            if (strpos($fieldName, '.') === false) {
+                //does not contain a '.' => not reference to mapping
+                $attributes[$fieldName] = [
+                    'fieldName'    => $fieldName,
+                    'columnName'   => $fieldName,
+                    'mappingClass' => null
+                ];
+                continue;
+            }
+
+            //contains a '.' => references embed mapping
+            $fieldMapping = $metaData->getFieldMapping($fieldName);
+            $attributes[$fieldMapping['columnName']] = [
+                'fieldName'     => $fieldName,
+                'columnName'    => $fieldMapping['columnName'],
+                'mappingClass'  => $fieldMapping['originalClass'],
+                'declaredField' => $fieldMapping['declaredField']
+            ];
+        }
+
+        return $attributes;
     }
 
     public function save()
@@ -57,6 +110,21 @@ class DoctrineEntity
         $em->flush();
 
         return $this;
+    }
+
+    /**
+     * Alias for remove
+     */
+    public function delete()
+    {
+        $this->remove();
+    }
+
+    public function remove()
+    {
+        $em = app()['em'];
+        $em->remove($this);
+        $em->flush();
     }
 
     /**
@@ -91,5 +159,49 @@ class DoctrineEntity
     public function hasSetMutator($key)
     {
         return method_exists($this, 'set' . Str::studly($key) . 'Attribute');
+    }
+
+    protected abstract function rules();
+
+    /**
+     * @var \Illuminate\Support\MessageBag
+     */
+    private $errors;
+    private $valid;
+
+
+    public function errors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param $data
+     * @return bool
+     */
+    public function validate($data)
+    {
+        // make a new validator object
+        $v = \Validator::make($data, $this->rules());
+        // return the result
+        if ($v->fails()) {
+            $this->errors = $v->errors();
+
+            return $this->valid = false;
+        }
+
+        return $this->valid = true;
+    }
+
+    public function valid()
+    {
+        return $this->valid;
+    }
+
+    public function __get($property)
+    {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
     }
 }

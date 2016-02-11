@@ -9,6 +9,6 @@ class DoctrineUserRepository extends EntityRepository implements UserRepository
 
     public function all($orderField = 'id', $order = 'ASC')
     {
-        // implement your find by title method
+        return $this->findBy([], [$orderField => $order]);
     }
 }

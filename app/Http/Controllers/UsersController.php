@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Entities\User;
+use App\Domain\Repositories;
 use App\Exceptions\InvalidCredentialsException;
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -11,24 +13,70 @@ class UsersController extends Controller
 {
 
     /**
+     * @var UserRepository
+     */
+    protected $userRepository;
+
+    public function __construct(Repositories\UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        //
+        $users = $this->userRepository->all();
+        $usersObject = [];
+
+        if (is_array($users)) {
+            /**
+             * @var User $user
+             */
+            foreach ($users as $user) {
+                $usersObject[] = [
+                    'id'        => $user->id,
+                    'email'     => $user->email,
+                    'firstname' => $user->name->getFirstname(),
+                    'lastname'  => $user->name->getLastname(),
+                ];
+            }
+        }
+
+        return $this->toJSONResponse(['users' => $usersObject]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store()
     {
+        $input = \Input::only('firstname', 'lastname', 'email', 'password');
 
+        $user = User::create($input);
+
+        // attempt validation
+        if ($user->valid()) {
+            $user->save();
+        } else {
+            // failure, get errors
+            $errors = $user->errors();
+
+            return $this->toJSONResponse([
+                'errors' => $errors->getMessages(),
+                'status' => 400
+            ], 400);
+        }
+
+        return $this->toJSONResponse([
+            'user_id' => $user->id
+        ], 201);
     }
 
     /**
@@ -39,7 +87,23 @@ class UsersController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = $this->userRepository->find($id);
+
+        if ($user) {
+            return $this->toJSONResponse([
+                'id'        => $user->id,
+                'firstname' => $user->firstname,
+                'lastname'  => $user->lastname,
+                'email'     => $user->email,
+            ], 200);
+        }
+
+        return $this->toJSONResponse([
+            'error' => [
+                'status'  => 400,
+                'message' => 'Invalid user id: ' . $id
+            ]
+        ], 400);
     }
 
     /**
@@ -51,7 +115,34 @@ class UsersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $input = \Input::only('firstname', 'lastname', 'email', 'password');
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            return $this->toJSONResponse([
+                'error' => [
+                    'status'  => 400,
+                    'message' => 'Invalid user id: ' . $id
+                ]
+            ], 400);
+        }
+
+        // attempt validation
+        if ($user->fill($input)->valid()) {
+            $user->save();
+        } else {
+            // failure, get errors
+            $errors = $user->errors();
+
+            return $this->toJSONResponse([
+                'errors' => $errors->getMessages(),
+                'status' => 400
+            ], 400);
+        }
+
+        return $this->toJSONResponse([
+            'user_id' => $user->id
+        ], 201);
     }
 
     /**
@@ -62,7 +153,20 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            return $this->toJSONResponse([
+                'error' => [
+                    'status'  => 400,
+                    'message' => 'Invalid user id: ' . $id
+                ]
+            ], 400);
+        }
+
+        $user->remove();
+
+        return $this->toJSONResponse([]);
     }
 
     /**
@@ -75,10 +179,10 @@ class UsersController extends Controller
     {
         if (!$token = JWTAuth::fromUser(\Auth::user())) throw new \App\Exceptions\InvalidCredentialsException;
 
-        return response()->json([
+        return $this->toJSONResponse([
             'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => \Config::get('jwt.ttl', '60') * 60
+            'token_type'   => 'bearer',
+            'expires_in'   => \Config::get('jwt.ttl', '60') * 60
         ]);
     }
 }

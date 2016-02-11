@@ -42,17 +42,19 @@ class User extends DoctrineEntity implements AuthenticatableContract, Authorizab
      */
     protected $email;
 
-    public function setPassword($password)
-    {
-        $this->password = \Hash::make($password);
-
-        return $this;
+    protected function rules() {
+        return [
+            'email'     => 'required|email|unique:' . get_class($this),
+            'password'  => 'required',
+            'firstname' => 'required|alpha_dash',
+            'lastname'  => 'required|alpha_dash'
+        ];
     }
 
-    public function __get($property)
+    public function setPasswordAttribute($password)
     {
-        if (property_exists($this, $property)) {
-            return $this->$property;
-        }
+        $this->setPassword(\Hash::make($password));
+
+        return $this;
     }
 }
