@@ -8,9 +8,10 @@ class DefaultUsersSeeder extends Seeder
     public function run()
     {
         \App\Domain\Entities\User::create([
-            'name'     => \App\Domain\ValueObjects\Name::create('Administrator', ''),
-            'email'    => 'admin',
-            'password' => \Hash::make('admin')
+            'firstname' => 'Administrator',
+            'lastname'  => '',
+            'email'     => 'admin',
+            'password'  => 'admin'
         ])->save();
     }
 }

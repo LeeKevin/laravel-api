@@ -92,8 +92,8 @@ class UsersController extends Controller
         if ($user) {
             return $this->toJSONResponse([
                 'id'        => $user->id,
-                'firstname' => $user->firstname,
-                'lastname'  => $user->lastname,
+                'firstname' => $user->name->firstname,
+                'lastname'  => $user->name->lastname,
                 'email'     => $user->email,
             ], 200);
         }
@@ -177,7 +177,7 @@ class UsersController extends Controller
      */
     public function token()
     {
-        if (!$token = JWTAuth::fromUser(\Auth::user())) throw new \App\Exceptions\InvalidCredentialsException;
+        if (!$token = \JWTAuth::fromUser(\Auth::user())) throw new \App\Exceptions\InvalidCredentialsException;
 
         return $this->toJSONResponse([
             'access_token' => $token,

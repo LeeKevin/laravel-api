@@ -12,9 +12,10 @@ class UsersSeeder extends Seeder
 
         foreach (range(1, 10) as $index) {
             \App\Domain\Entities\User::create([
-                'name' => \App\Domain\ValueObjects\Name::create($faker->firstName, $faker->lastName),
-                'email' => $faker->email,
-                'password' => $faker->password()
+                'firstname' => $faker->firstName,
+                'lastname'  => $faker->lastName,
+                'email'     => $faker->email,
+                'password'  => $faker->password()
             ])->save();
         }
     }

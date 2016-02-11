@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class VerifyToken
 {
@@ -36,7 +37,7 @@ class VerifyToken
      */
     public function handle($request, Closure $next)
     {
-        $user = \JWTAuth::parseToken()->authenticate();
+        $user = \JWTAuth::setRequest($request)->parseToken()->authenticate();
 
         $this->auth->setUser($user);
         return $next($request);

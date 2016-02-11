@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
         $this
             ->truncateTables()
             ->defaultSeeders()
-            ->developmentSeeders();
+            ->developmentSeeders()
+            ->testSeeders();
     }
 
     private function truncateTables()
@@ -21,13 +22,32 @@ class DatabaseSeeder extends Seeder
     }
 
     /**
-     * Seeders to run in a 'local' environment for development testing
+     * Seeders to run in a 'local' environment for development
      */
     private function developmentSeeders()
     {
         if (\App::environment() !== 'local') return $this;
 
         $this->call('UsersSeeder');
+
+        return $this;
+    }
+
+    /**
+     * Seeders to run in a 'testing' environment for testing
+     */
+    private function testSeeders()
+    {
+        if (\App::environment() !== 'testing') return $this;
+
+        //call all seeders
+        $seederFiles = new \RecursiveDirectoryIterator(base_path('database/seeds/test'));
+        foreach (new \RecursiveIteratorIterator($seederFiles) as $file) {
+            if (!$file->isFile()) continue;
+            $fileInfo = pathinfo($file->getFileName());
+            $seederName = $fileInfo['filename'];
+            $this->call($seederName);
+        }
 
         return $this;
     }

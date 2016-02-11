@@ -40,7 +40,7 @@ abstract class DoctrineEntity
     {
         $model = new static();
 
-        return $model->fill();
+        return $model->fill($attributes);
     }
 
     public function fill(array $attributes = [])
