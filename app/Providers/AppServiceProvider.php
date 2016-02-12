@@ -41,10 +41,10 @@ class AppServiceProvider extends ServiceProvider
             if (
                 $fileInfo['extension'] == 'php' &&
                 file_exists(app_path('/Domain/Repositories') . '/' . $entityName . 'Repository.php') &&
-                file_exists(app_path('/Infrastructure/Doctrine') . '/' . $doctrineRepositoryClass . '.php')
+                file_exists(app_path('/Infrastructure/Doctrine/Repositories') . '/' . $doctrineRepositoryClass . '.php')
             ) {
                 $this->app->bind("\\App\\Domain\\Repositories\\" . $entityName . 'Repository', function (Application $app) use ($doctrineRepositoryClass, $entityName) {
-                    $doctrineRepositoryClassPath = "\\App\\Infrastructure\\Doctrine\\" . $doctrineRepositoryClass;
+                    $doctrineRepositoryClassPath = "\\App\\Infrastructure\\Doctrine\\Repositories\\" . $doctrineRepositoryClass;
 
                     return new $doctrineRepositoryClassPath(
                         $app->make('em'),

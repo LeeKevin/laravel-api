@@ -43,7 +43,8 @@ class Name extends Object
      *
      * @return array
      */
-    protected function rules() {
+    protected function rules()
+    {
         return [
             'firstname' => 'required|alpha_dash',
             'lastname'  => 'required|alpha_dash',
