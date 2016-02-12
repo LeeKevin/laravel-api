@@ -47,7 +47,7 @@ class User extends Object implements AuthenticatableContract, AuthorizableContra
      * Set a hashed password
      *
      * @param string $password
-     * @return self
+     * @return static
      */
     public function setPasswordAttribute($password)
     {

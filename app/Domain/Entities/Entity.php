@@ -28,7 +28,7 @@ interface Entity {
     /**
      * Persist the entity
      *
-     * @return self
+     * @return static
      */
     public function save();
 

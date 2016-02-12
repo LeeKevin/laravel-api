@@ -6,15 +6,10 @@ trait DoctrineEntity
 {
 
     /**
-     * @var string
-     */
-    protected static $table;
-
-    /**
      * Create an instance of the the entity
      *
      * @param array $attributes
-     * @return mixed
+     * @return static
      */
     public static function create(array $attributes = [])
     {
@@ -27,7 +22,7 @@ trait DoctrineEntity
      * Fill the entity with attributes
      *
      * @param array $attributes
-     * @return $this
+     * @return static
      */
     public function fill(array $attributes = [])
     {
@@ -51,7 +46,7 @@ trait DoctrineEntity
             }
             $embed->setAttribute($attributeList[$key]['columnName'], $value);
         }
-        $this->validate($attributes);
+        if (method_exists($this, 'validate')) $this->validate($attributes);
 
         return $this;
     }
@@ -114,26 +109,20 @@ trait DoctrineEntity
      */
     protected static function getTable()
     {
-        //if the table is overridden, return that
-        if (isset(self::$table)) return self::$table;
+        /**
+         * @var \EntityManager $em
+         */
+        $em = app()['em'];
 
-        //else get the pluralized table name from the name of the entity
-        $entityClassPath = strtolower(get_called_class());
-        $entityName = substr(strrchr($entityClassPath, '\\'), 1);
-        switch ($entityName[strlen($entityName) - 1]) {
-            case 'y':
-                return substr($entityName, 0, - 1) . 'ies';
-            case 's':
-                return $entityName . 'es';
-            default:
-                return $entityName . 's';
-        }
+        $metaData = $em->getClassMetadata(get_called_class());
+
+        return $metaData->getTableName();
     }
 
     /**
      * Persist the entity
      *
-     * @return self
+     * @return static
      */
     public function save()
     {

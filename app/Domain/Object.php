@@ -51,7 +51,7 @@ abstract class Object
     public function getAttribute($key)
     {
         if (!property_exists($this, $key)) return null;
-            // First we will check for the presence of an accessor for the get operation
+        // First we will check for the presence of an accessor for the get operation
         // which simply lets the developers tweak the attribute as it is pulled from
         // the model.
         if ($this->hasGetAccessor($key)) {
@@ -69,7 +69,7 @@ abstract class Object
      *
      * @param  string $key
      * @param  mixed $value
-     * @return self
+     * @return static
      */
     public function setAttribute($key, $value)
     {
@@ -156,7 +156,7 @@ abstract class Object
      */
     public function valid()
     {
-        return $this->valid;
+        return (bool) $this->valid;
     }
 
 }
